@@ -1,5 +1,3 @@
-# 总结
-
 - etcd一致性读用的是ReadIndex的算法，只有状态机的apply index大于等于commit index时才返回读数据，否则就等待，而commit index的正确性是通过每次都向leader请求保证的
 - etcd通过ttl设置key时，会把当前节点时间加上ttl时间作为key的expiration，这个过期时间会被写到一个有序map。
   leader中会运行一个tick，每500ms触发一次，同时tick会产生一个sync消息，里面包含leader系统当前时间，leader把sync消息通过raft广播到所有节点，节点查询有序map，然后删除过期时间小于当前时间的key
@@ -8,3 +6,6 @@
 - 集群内全部节点都会记录修改存储状态的操作，如创建、删除、更新等操作，watch和get只会被本地节点记录
 - etcd v3使用lease机制取代了v2的ttl机制
 - 对目录的存储使用的是线段树结构，相当于把同一目录下的key看做是具有相同前缀的key处理
+- 在选举期间，etcd无法处理任何写操作，客户端的写请求会缓存写请求到队列，直到新的主节点产生。从客户角度看，一些写请求会超时，所有已提交的写数据不会丢失
+- etcd主要用来存储配置和重要的元数据，并不适合海量存储
+- 一个revision由两部分组成，main和sub，sub主要是为了区分不同的key对应相同的revision（一个事务中），所以当不同的key具有相同value时，通过sub字段来区分不同的key
