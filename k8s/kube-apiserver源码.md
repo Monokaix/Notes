@@ -1,0 +1,4 @@
+apiserver处理Crete请求:
+
+通过go-restful提高的接口将处理handler和路由绑定，hander其实之前调用了rest.Storage接口创建了数据，然后存到数据库，也就是调用etcd的接口创建key
+
